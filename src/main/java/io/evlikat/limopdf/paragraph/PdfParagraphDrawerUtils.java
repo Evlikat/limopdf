@@ -47,7 +47,7 @@ class PdfParagraphDrawerUtils {
                 remainingWidth -= chunkWidth;
                 currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth));
             } else {
-                WrapResult wrapResult = wrap(chunk.getText(), remainingWidth, forceWrapAllowed, measurer::measureString);
+                WrapResult wrapResult = wrapText(chunk.getText(), remainingWidth, forceWrapAllowed, measurer::measureString);
                 if (isNotBlank(wrapResult.currentLine)) {
                     currentLine.addChunk(new TextChunk(wrapResult.currentLine, chunk.getProperties(), wrapResult.width));
                 }
@@ -71,16 +71,17 @@ class PdfParagraphDrawerUtils {
     }
 
     @SneakyThrows
-    private static WrapResult wrap(String text,
-                                   float availableWidth,
-                                   boolean forceWrapAllowed,
-                                   Function<String, Float> measurer) {
+    private static WrapResult wrapText(String text,
+                                       float availableWidth,
+                                       boolean forceWrapAllowed,
+                                       Function<String, Float> measurer) {
         // TODO: add spaces
         List<String> textParts = TextUtils.splitByWords(text);
         StringBuilder currentLineBuilder = new StringBuilder();
         StringBuilder nextLineBuilder = new StringBuilder();
         float remainingWidth = availableWidth;
         boolean wrapped = false;
+        float lastStripWidth = 0f;
         for (String textPart : textParts) {
             if (wrapped) {
                 nextLineBuilder.append(textPart);
@@ -88,11 +89,13 @@ class PdfParagraphDrawerUtils {
             }
             float requiredWidth = measurer.apply(stripEnd(textPart, null));
             if (requiredWidth <= remainingWidth) {
-                remainingWidth -= measurer.apply(textPart);
+                float actualWidth = measurer.apply(textPart);
+                remainingWidth -= actualWidth;
+                lastStripWidth = actualWidth - requiredWidth;
                 currentLineBuilder.append(textPart);
             } else {
                 if (forceWrapAllowed) {
-                    WrapResult forceWrapResult = forceWrap(textPart, remainingWidth, measurer);
+                    WrapResult forceWrapResult = wrapWords(textPart, remainingWidth, measurer);
                     currentLineBuilder.append(forceWrapResult.currentLine);
                     nextLineBuilder.append(forceWrapResult.nextLine);
                 } else {
@@ -105,26 +108,29 @@ class PdfParagraphDrawerUtils {
         return new WrapResult(
             stripEnd(currentLine, null),
             nextLineBuilder.toString(),
-            availableWidth - remainingWidth
+            availableWidth - remainingWidth - lastStripWidth
         );
     }
 
-    private static WrapResult forceWrap(String textPart,
+    private static WrapResult wrapWords(String textPart,
                                         float availableWidth,
                                         Function<String, Float> measurer) {
         StringBuilder currentLineBuilder = new StringBuilder();
         StringBuilder nextLineBuilder = new StringBuilder();
         float remainingWidth = availableWidth;
         boolean wrapped = false;
+        float lastStripWidth = 0f;
         for (char c : textPart.toCharArray()) {
             if (wrapped) {
                 nextLineBuilder.append(c);
                 continue;
             }
-            float width = measurer.apply(String.valueOf(c));
-            if (width <= remainingWidth) {
+            float requiredWidth = measurer.apply(String.valueOf(c));
+            if (requiredWidth <= remainingWidth) {
                 currentLineBuilder.append(c);
-                remainingWidth -= width;
+                float actualWidth = measurer.apply(textPart);
+                remainingWidth -= actualWidth;
+                lastStripWidth = actualWidth - requiredWidth;
             } else {
                 wrapped = true;
             }
@@ -132,7 +138,8 @@ class PdfParagraphDrawerUtils {
         return new WrapResult(
             stripEnd(currentLineBuilder.toString(), null),
             nextLineBuilder.toString(),
-            availableWidth - remainingWidth);
+            availableWidth - remainingWidth - lastStripWidth
+        );
     }
 
     @AllArgsConstructor
