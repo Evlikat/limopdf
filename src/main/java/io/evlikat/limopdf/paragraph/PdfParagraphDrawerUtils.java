@@ -6,7 +6,6 @@ import io.evlikat.limopdf.util.font.PdfFont;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -15,8 +14,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toCollection;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.*;
 
 class PdfParagraphDrawerUtils {
 
@@ -42,7 +40,7 @@ class PdfParagraphDrawerUtils {
 
             String chunkText = chunk.getText();
             // Trailing spaces can be ignored
-            float requiredWidth = measurer.measureString(StringUtils.stripEnd(chunkText, null));
+            float requiredWidth = measurer.measureString(stripEnd(chunkText, null));
             if (requiredWidth <= remainingWidth) {
                 // Trailing spaces must be considered
                 float chunkWidth = measurer.measureString(chunkText);
@@ -88,7 +86,7 @@ class PdfParagraphDrawerUtils {
                 nextLineBuilder.append(textPart);
                 continue;
             }
-            float requiredWidth = measurer.apply(StringUtils.stripEnd(textPart, null));
+            float requiredWidth = measurer.apply(stripEnd(textPart, null));
             if (requiredWidth <= remainingWidth) {
                 remainingWidth -= measurer.apply(textPart);
                 currentLineBuilder.append(textPart);
@@ -104,7 +102,11 @@ class PdfParagraphDrawerUtils {
             }
         }
         String currentLine = currentLineBuilder.toString();
-        return new WrapResult(currentLine, nextLineBuilder.toString(), availableWidth - remainingWidth);
+        return new WrapResult(
+            stripEnd(currentLine, null),
+            nextLineBuilder.toString(),
+            availableWidth - remainingWidth
+        );
     }
 
     private static WrapResult forceWrap(String textPart,
@@ -127,7 +129,10 @@ class PdfParagraphDrawerUtils {
                 wrapped = true;
             }
         }
-        return new WrapResult(currentLineBuilder.toString(), nextLineBuilder.toString(), availableWidth - remainingWidth);
+        return new WrapResult(
+            stripEnd(currentLineBuilder.toString(), null),
+            nextLineBuilder.toString(),
+            availableWidth - remainingWidth);
     }
 
     @AllArgsConstructor

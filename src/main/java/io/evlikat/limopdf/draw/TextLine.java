@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -12,14 +11,13 @@ public class TextLine {
 
     private float height = 0f;
     private float width = 0f;
-    private final List<TextChunk> chunks;
+    private final List<TextChunk> chunks = new ArrayList<>();
 
     public TextLine() {
-        this(Collections.emptyList());
     }
 
     public TextLine(List<TextChunk> chunks) {
-        this.chunks = new ArrayList<>(chunks);
+        chunks.forEach(this::addChunk);
     }
 
     @SneakyThrows
