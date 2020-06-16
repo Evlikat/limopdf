@@ -5,19 +5,24 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 public class PdfParagraph implements Drawable {
 
+    private final PdfParagraphProperties paragraphProperties;
     private final List<PdfParagraphChunk> chunks = new ArrayList<>();
 
-    public PdfParagraph(PdfParagraphChunk chunk) {
+    public PdfParagraph(PdfParagraphChunk chunk, PdfParagraphProperties paragraphProperties) {
+        this.paragraphProperties = paragraphProperties;
         this.chunks.add(chunk);
     }
 
+    public PdfParagraph(String text, PdfParagraphProperties paragraphProperties) {
+        this(new PdfParagraphChunk(text, new PdfCharacterProperties()), paragraphProperties);
+    }
+
     public PdfParagraph(String text) {
-        this(new PdfParagraphChunk(text, new PdfCharacterProperties()));
+        this(new PdfParagraphChunk(text, new PdfCharacterProperties()), new PdfParagraphProperties());
     }
 
     @Override

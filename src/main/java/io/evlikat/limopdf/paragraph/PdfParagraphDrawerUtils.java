@@ -45,12 +45,13 @@ class PdfParagraphDrawerUtils {
             float requiredWidth = measurer.measureString(StringUtils.stripEnd(chunkText, null));
             if (requiredWidth <= remainingWidth) {
                 // Trailing spaces must be considered
-                remainingWidth -= measurer.measureString(chunkText);
-                currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties()));
+                float chunkWidth = measurer.measureString(chunkText);
+                remainingWidth -= chunkWidth;
+                currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth));
             } else {
                 WrapResult wrapResult = wrap(chunk.getText(), remainingWidth, forceWrapAllowed, measurer::measureString);
                 if (isNotBlank(wrapResult.currentLine)) {
-                    currentLine.addChunk(new TextChunk(wrapResult.currentLine, chunk.getProperties()));
+                    currentLine.addChunk(new TextChunk(wrapResult.currentLine, chunk.getProperties(), wrapResult.width));
                 }
                 lines.add(currentLine);
 
@@ -103,7 +104,7 @@ class PdfParagraphDrawerUtils {
             }
         }
         String currentLine = currentLineBuilder.toString();
-        return new WrapResult(currentLine, nextLineBuilder.toString());
+        return new WrapResult(currentLine, nextLineBuilder.toString(), availableWidth - remainingWidth);
     }
 
     private static WrapResult forceWrap(String textPart,
@@ -126,13 +127,14 @@ class PdfParagraphDrawerUtils {
                 wrapped = true;
             }
         }
-        return new WrapResult(currentLineBuilder.toString(), nextLineBuilder.toString());
+        return new WrapResult(currentLineBuilder.toString(), nextLineBuilder.toString(), availableWidth - remainingWidth);
     }
 
     @AllArgsConstructor
     static final class WrapResult {
         final String currentLine;
         final String nextLine;
+        final float width;
     }
 
     @Data

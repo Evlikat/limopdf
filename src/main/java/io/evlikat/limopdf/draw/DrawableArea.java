@@ -23,12 +23,17 @@ public class DrawableArea {
     }
 
     @SneakyThrows
-    public void drawTextLine(TextLine line) {
+    public void drawTextLine(DrawableTextLine drawableTextLine) {
         contentStream.beginText();
+
+        TextLine line = drawableTextLine.getLine();
 
         for (TextChunk textChunk : line.getChunks()) {
             textChunk.setUpContentStream(contentStream);
-            contentStream.newLineAtOffset(position.getX(), position.getY() - line.getHeight());
+            contentStream.newLineAtOffset(
+                position.getX() + drawableTextLine.getLeftIndent(),
+                position.getY() - line.getHeight()
+            );
             contentStream.showText(textChunk.getText());
 
             position.minusY(line.getHeight());

@@ -11,6 +11,7 @@ import java.util.List;
 public class TextLine {
 
     private float height = 0f;
+    private float width = 0f;
     private final List<TextChunk> chunks;
 
     public TextLine() {
@@ -24,6 +25,7 @@ public class TextLine {
     @SneakyThrows
     public void addChunk(TextChunk chunk) {
         this.height = Math.max(height, chunk.getCharacterProperties().getHeightInPixels());
+        this.width += chunk.getWidth();
         this.chunks.add(chunk);
     }
 
@@ -33,5 +35,9 @@ public class TextLine {
 
     public float getHeight() {
         return height;
+    }
+
+    public float getWidth() {
+        return width;
     }
 }

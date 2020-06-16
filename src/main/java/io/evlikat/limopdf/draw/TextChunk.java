@@ -10,6 +10,7 @@ public class TextChunk {
 
     private final String text;
     private final PdfCharacterProperties characterProperties;
+    private final float width;
 
     @SneakyThrows
     public void setUpContentStream(PDPageContentStream contentStream) {
