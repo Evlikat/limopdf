@@ -14,7 +14,7 @@ public class PageGuard {
 
     private final PDDocument document;
     private PdfPage currentPage;
-    private final CurrentPositionHolder currentPosition = new CurrentPositionHolder(null);
+    private final CurrentPositionHolder currentPosition = new CurrentPositionHolder(null, 0f);
     private PageSpecification pageSpecification = new PageSpecification();
 
     public PageGuard(PDDocument document) {
@@ -39,11 +39,6 @@ public class PageGuard {
             }
             newPage();
         }
-    }
-
-    public void newPage(PageSpecification pageSpecification) {
-        this.pageSpecification = pageSpecification;
-        startNewPage();
     }
 
     public void newPage() {

@@ -45,18 +45,28 @@ public class PdfParagraphDrawer implements Drawer {
         Box margin = paragraph.getParagraphProperties().getMargin();
         float remainingContentWidth = availableWidth - margin.getLeft() - margin.getRight();
 
-        return PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(), remainingContentWidth);
+        List<TextLine> textLines = PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(), remainingContentWidth);
+        if (!textLines.isEmpty()) {
+            textLines.get(0).setFirst(true);
+            textLines.get(textLines.size() - 1).setLast(true);
+        }
+        return textLines;
     }
 
     private DrawResult doDraw(DrawableArea drawableArea, List<TextLine> lines, float availableWidth) {
+        PdfParagraphProperties paragraphProperties = paragraph.getParagraphProperties();
+        Box margin = paragraphProperties.getMargin();
         boolean anyLineDrawn = false;
         for (int i = 0; i < lines.size(); i++) {
             TextLine line = lines.get(i);
-            if (drawableArea.canDraw(line)) {
+
+            float topMargin = line.isFirst() ? margin.getTop() : 0f;
+            if (drawableArea.canDraw(line, topMargin)) {
                 anyLineDrawn = true;
 
-                float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraph.getParagraphProperties());
-                drawableArea.drawTextLine(new DrawableTextLine(line, leftIndent));
+                float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraphProperties);
+                float bottomMargin = line.isLast() ? margin.getBottom() : 0f;
+                drawableArea.drawTextLine(new DrawableTextLine(line, leftIndent, topMargin, bottomMargin));
             } else {
                 remainingTextLines = lines.subList(i, lines.size());
                 if (anyLineDrawn) {

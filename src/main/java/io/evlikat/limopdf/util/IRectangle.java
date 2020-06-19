@@ -1,6 +1,6 @@
 package io.evlikat.limopdf.util;
 
-public interface IRectangle {
+public interface IRectangle extends IBlock {
 
     float getWidth();
 

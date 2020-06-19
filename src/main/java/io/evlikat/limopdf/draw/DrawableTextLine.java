@@ -8,6 +8,8 @@ public class DrawableTextLine implements IRectangle {
 
     private final TextLine line;
     private final float leftIndent;
+    private final float topMargin;
+    private final float bottomMargin;
 
     @Override
     public float getWidth() {

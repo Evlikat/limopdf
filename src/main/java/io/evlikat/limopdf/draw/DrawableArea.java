@@ -1,14 +1,14 @@
 package io.evlikat.limopdf.draw;
 
 import io.evlikat.limopdf.CurrentPositionHolder;
-import io.evlikat.limopdf.util.IRectangle;
+import io.evlikat.limopdf.util.IBlock;
 import io.evlikat.limopdf.util.devtools.PrintMode;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 
 import java.awt.*;
-import java.util.Arrays;
+import java.io.IOException;
 
 public class DrawableArea {
 
@@ -26,9 +26,9 @@ public class DrawableArea {
         this.availableHeight = availableHeight;
     }
 
-    public boolean canDraw(IRectangle ... rectangle) {
-        double totalHeight = Arrays.stream(rectangle).mapToDouble(IRectangle::getHeight).sum();
-        return availableHeight >= totalHeight;
+    public boolean canDraw(IBlock block, float topMargin) {
+        float margin = Math.max(position.getLastBottomMargin(), topMargin);
+        return availableHeight >= (margin + block.getHeight());
     }
 
     @SneakyThrows
@@ -36,15 +36,12 @@ public class DrawableArea {
 
         TextLine line = drawableTextLine.getLine();
 
-        float tx = position.getX() + drawableTextLine.getLeftIndent();
-        float ty = position.getY() - line.getHeight();
+        float topMargin = Math.max(position.getLastBottomMargin(), drawableTextLine.getTopMargin());
 
-        if (PrintMode.INSTANCE.isDebug()) {
-            contentStream.setStrokingColor(Color.LIGHT_GRAY);
-            contentStream.setLineWidth(1f);
-            contentStream.addRect(tx, ty, line.getWidth(), line.getHeight());
-            contentStream.stroke();
-        }
+        float tx = position.getX() + drawableTextLine.getLeftIndent();
+        float ty = position.getY() - (line.getHeight() + topMargin);
+
+        drawDebugLines(line, tx, ty);
 
         contentStream.beginText();
 
@@ -52,11 +49,22 @@ public class DrawableArea {
             textChunk.setUpContentStream(contentStream);
             contentStream.newLineAtOffset(tx, ty);
             contentStream.showText(textChunk.getText());
-
-            position.minusY(line.getHeight());
-            availableHeight -= line.getHeight();
         }
 
+        position.minusY(line.getHeight() + topMargin);
+        position.setLastBottomMargin(drawableTextLine.getBottomMargin());
+        availableHeight -= line.getHeight();
+
         contentStream.endText();
+    }
+
+    private void drawDebugLines(TextLine line, float tx, float ty) throws IOException {
+        if (!PrintMode.INSTANCE.isDebug()) {
+            return;
+        }
+        contentStream.setStrokingColor(Color.LIGHT_GRAY);
+        contentStream.setLineWidth(1f);
+        contentStream.addRect(tx, ty, line.getWidth(), line.getHeight());
+        contentStream.stroke();
     }
 }

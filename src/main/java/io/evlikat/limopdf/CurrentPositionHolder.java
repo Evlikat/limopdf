@@ -11,6 +11,7 @@ import lombok.Setter;
 public class CurrentPositionHolder {
 
     private Position position;
+    private float lastBottomMargin;
 
     public float getX() {
         return position.getX();

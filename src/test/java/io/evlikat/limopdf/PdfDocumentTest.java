@@ -34,11 +34,19 @@ public class PdfDocumentTest {
     }
 
     @Test(timeout = 3000L)
+    public void shouldAddMarginParagraphs() {
+        PdfDocument doc = new PdfDocument();
+        doc.addParagraph(new PdfParagraph("1: " + loremIpsum(), boxed(LEFT, Box.bottom(15f))));
+        doc.addParagraph(new PdfParagraph("2: " + loremIpsum(), boxed(LEFT, Box.topBottom(45f))));
+        doc.addParagraph(new PdfParagraph("3: " + loremIpsum(), boxed(LEFT, Box.top(5f))));
+        doc.save(SOME_PDF);
+    }
+
+    @Test(timeout = 3000L)
     public void shouldAddParagraphsMultiplePages() {
         PdfDocument doc = new PdfDocument();
         for (int i = 1; i <= 50; i++) {
-            doc.addParagraph(new PdfParagraph(i + ": " + loremIpsum()));
-            doc.addParagraph(new PdfParagraph(""));
+            doc.addParagraph(new PdfParagraph(i + ": " + loremIpsum(), boxed(LEFT, Box.topBottom(10f))));
         }
         doc.save(SOME_PDF);
     }

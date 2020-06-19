@@ -2,6 +2,7 @@ package io.evlikat.limopdf.draw;
 
 import io.evlikat.limopdf.util.IRectangle;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ public class TextLine implements IRectangle {
     private float height = 0f;
     private float width = 0f;
     private final List<TextChunk> chunks = new ArrayList<>();
+    @Setter
+    private boolean first = false;
+    @Setter
+    private boolean last = false;
 
     public TextLine() {
     }
