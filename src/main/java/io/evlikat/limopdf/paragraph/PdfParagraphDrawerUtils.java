@@ -47,7 +47,7 @@ class PdfParagraphDrawerUtils {
                 remainingWidth -= chunkWidth;
                 currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth));
             } else {
-                WrapResult wrapResult = wrapText(chunk.getText(), remainingWidth, forceWrapAllowed, measurer::measureString);
+                WrapResult wrapResult = wrapText(chunkText, remainingWidth, forceWrapAllowed, measurer::measureString);
                 if (isNotBlank(wrapResult.currentLine)) {
                     currentLine.addChunk(new TextChunk(wrapResult.currentLine, chunk.getProperties(), wrapResult.width));
                 }

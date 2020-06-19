@@ -1,5 +1,6 @@
 package io.evlikat.limopdf.draw;
 
+import io.evlikat.limopdf.util.IRectangle;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class TextLine {
+public class TextLine implements IRectangle {
 
     private float height = 0f;
     private float width = 0f;
@@ -29,13 +30,5 @@ public class TextLine {
 
     public boolean anyChunk() {
         return !this.chunks.isEmpty();
-    }
-
-    public float getHeight() {
-        return height;
-    }
-
-    public float getWidth() {
-        return width;
     }
 }

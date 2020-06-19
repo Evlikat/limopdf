@@ -28,9 +28,17 @@ public class PageGuard {
 
     @SneakyThrows
     public void addParagraph(PdfParagraph paragraph) {
-        PdfPage page = getCurrentPage();
-        DrawableArea drawableArea = page.prepareDrawableArea(currentPosition);
-        paragraph.drawer().draw(drawableArea);
+        Drawer drawer = paragraph.drawer();
+        DrawResult drawResult;
+        while (true) {
+            PdfPage page = getCurrentPage();
+            DrawableArea drawableArea = page.prepareDrawableArea(currentPosition);
+            drawResult = drawer.draw(drawableArea);
+            if (drawResult == DrawResult.COMPLETE) {
+                break;
+            }
+            newPage();
+        }
     }
 
     public void newPage(PageSpecification pageSpecification) {

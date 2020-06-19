@@ -4,7 +4,6 @@ import io.evlikat.limopdf.paragraph.HorizontalTextAlignment;
 import io.evlikat.limopdf.paragraph.PdfParagraph;
 import io.evlikat.limopdf.paragraph.PdfParagraphProperties;
 import io.evlikat.limopdf.util.Box;
-import io.evlikat.limopdf.util.devtools.PrintMode;
 import org.junit.Test;
 
 import static io.evlikat.limopdf.paragraph.HorizontalTextAlignment.*;
@@ -25,14 +24,22 @@ public class PdfDocumentTest {
 
     @Test(timeout = 3000L)
     public void shouldAddAlignedParagraphs() {
-        PrintMode.INSTANCE.setDebug(true);
-
         PdfDocument doc = new PdfDocument();
         doc.addParagraph(new PdfParagraph("Left: " + loremIpsum(), boxed(LEFT, Box.left(45f))));
         doc.addParagraph(new PdfParagraph(""));
         doc.addParagraph(new PdfParagraph("Center: " + loremIpsum(), boxed(CENTER, Box.rightLeft(45f))));
         doc.addParagraph(new PdfParagraph(""));
         doc.addParagraph(new PdfParagraph("Right: " + loremIpsum(), boxed(RIGHT, Box.right(45f))));
+        doc.save(SOME_PDF);
+    }
+
+    @Test(timeout = 3000L)
+    public void shouldAddParagraphsMultiplePages() {
+        PdfDocument doc = new PdfDocument();
+        for (int i = 1; i <= 50; i++) {
+            doc.addParagraph(new PdfParagraph(i + ": " + loremIpsum()));
+            doc.addParagraph(new PdfParagraph(""));
+        }
         doc.save(SOME_PDF);
     }
 
