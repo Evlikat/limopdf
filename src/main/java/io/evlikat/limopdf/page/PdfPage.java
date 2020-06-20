@@ -5,7 +5,6 @@ import io.evlikat.limopdf.draw.DrawableArea;
 import io.evlikat.limopdf.util.Box;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -50,8 +49,10 @@ public class PdfPage {
         return nativePage.getMediaBox().getHeight() - margin.getTop() - margin.getBottom();
     }
 
+    @SneakyThrows
     public void close() {
-        IOUtils.closeQuietly(contentStream, () -> {
-        });
+        if (contentStream != null) {
+            contentStream.close();
+        };
     }
 }
