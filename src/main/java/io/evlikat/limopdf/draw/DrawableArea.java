@@ -26,9 +26,9 @@ public class DrawableArea {
         this.availableHeight = availableHeight;
     }
 
-    public boolean canDraw(IBlock block, float topMargin) {
+    public boolean canDraw(IBlock block, float topPadding, float topMargin) {
         float margin = Math.max(position.getLastBottomMargin(), topMargin);
-        return availableHeight >= (margin + block.getHeight());
+        return availableHeight - topPadding >= (margin + block.getHeight());
     }
 
     @SneakyThrows
@@ -38,8 +38,10 @@ public class DrawableArea {
 
         float topMargin = Math.max(position.getLastBottomMargin(), drawableTextLine.getTopMargin());
 
+        float totalBlockHeight = line.getHeight() + topMargin + drawableTextLine.getTopPadding();
+
         float tx = position.getX() + drawableTextLine.getLeftIndent();
-        float ty = position.getY() - (line.getHeight() + topMargin);
+        float ty = position.getY() - totalBlockHeight;
 
         drawDebugLines(line, tx, ty);
 
@@ -51,9 +53,9 @@ public class DrawableArea {
             contentStream.showText(textChunk.getText());
         }
 
-        position.minusY(line.getHeight() + topMargin);
+        position.minusY(totalBlockHeight);
         position.setLastBottomMargin(drawableTextLine.getBottomMargin());
-        availableHeight -= line.getHeight();
+        availableHeight -= totalBlockHeight;
 
         contentStream.endText();
     }

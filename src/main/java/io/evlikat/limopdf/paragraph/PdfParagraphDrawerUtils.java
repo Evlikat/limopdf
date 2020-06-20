@@ -119,7 +119,6 @@ class PdfParagraphDrawerUtils {
         StringBuilder nextLineBuilder = new StringBuilder();
         float remainingWidth = availableWidth;
         boolean wrapped = false;
-        float lastStripWidth = 0f;
         for (char c : textPart.toCharArray()) {
             if (wrapped) {
                 nextLineBuilder.append(c);
@@ -128,9 +127,8 @@ class PdfParagraphDrawerUtils {
             float requiredWidth = measurer.apply(String.valueOf(c));
             if (requiredWidth <= remainingWidth) {
                 currentLineBuilder.append(c);
-                float actualWidth = measurer.apply(textPart);
+                float actualWidth = measurer.apply(String.valueOf(c));
                 remainingWidth -= actualWidth;
-                lastStripWidth = actualWidth - requiredWidth;
             } else {
                 wrapped = true;
             }
@@ -138,7 +136,7 @@ class PdfParagraphDrawerUtils {
         return new WrapResult(
             stripEnd(currentLineBuilder.toString(), null),
             nextLineBuilder.toString(),
-            availableWidth - remainingWidth - lastStripWidth
+            availableWidth - remainingWidth
         );
     }
 

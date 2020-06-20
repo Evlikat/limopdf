@@ -61,12 +61,13 @@ public class PdfParagraphDrawer implements Drawer {
             TextLine line = lines.get(i);
 
             float topMargin = line.isFirst() ? margin.getTop() : 0f;
-            if (drawableArea.canDraw(line, topMargin)) {
+            float topPadding = line.isFirst() ? 0f : paragraphProperties.getLineSpacingInPixels();
+            if (drawableArea.canDraw(line, topPadding, topMargin)) {
                 anyLineDrawn = true;
 
                 float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraphProperties);
                 float bottomMargin = line.isLast() ? margin.getBottom() : 0f;
-                drawableArea.drawTextLine(new DrawableTextLine(line, leftIndent, topMargin, bottomMargin));
+                drawableArea.drawTextLine(new DrawableTextLine(line, leftIndent, topPadding, topMargin, bottomMargin));
             } else {
                 remainingTextLines = lines.subList(i, lines.size());
                 if (anyLineDrawn) {

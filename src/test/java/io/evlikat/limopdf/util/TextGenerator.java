@@ -7,9 +7,22 @@ import java.nio.charset.Charset;
 
 public class TextGenerator {
 
-    @SneakyThrows
     public static String loremIpsum() {
-        return IOUtils.resourceToString("/lorem-ipsum.txt", Charset.defaultCharset());
+        return loremIpsum(1);
+    }
+
+    @SneakyThrows
+    public static String loremIpsum(int index) {
+        return IOUtils.resourceToString("/lorem-ipsum-" + index + ".txt", Charset.defaultCharset());
+    }
+
+    @SneakyThrows
+    public static String loremIpsum(int fromIndex, int toIndex) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = fromIndex; index <= toIndex; index++) {
+            sb.append(IOUtils.resourceToString("/lorem-ipsum-" + index + ".txt", Charset.defaultCharset()));
+        }
+        return sb.toString();
     }
 
     private TextGenerator() {

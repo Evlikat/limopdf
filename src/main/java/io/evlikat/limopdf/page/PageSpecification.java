@@ -11,6 +11,6 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 @NoArgsConstructor
 public class PageSpecification {
 
-    private final Box margin = Box.of(75f, 50);
+    private final Box margin = Box.of(50f, 50f);
     private final PDRectangle size = PDRectangle.A4;
 }
