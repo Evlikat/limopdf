@@ -6,8 +6,12 @@ import io.evlikat.limopdf.draw.DrawableArea;
 import io.evlikat.limopdf.draw.DrawableTextLine;
 import io.evlikat.limopdf.draw.TextLine;
 import io.evlikat.limopdf.util.Box;
+import io.evlikat.limopdf.util.CompositeBlockElement;
 
 import java.util.List;
+
+import static io.evlikat.limopdf.util.CollectionUtils.groupEdges;
+import static java.util.stream.Collectors.toList;
 
 public class PdfParagraphDrawer implements Drawer {
 
@@ -15,7 +19,7 @@ public class PdfParagraphDrawer implements Drawer {
     /**
      * Contains partial paragraph lines ready to draw.
      */
-    private List<TextLine> remainingTextLines;
+    private List<TextLineGroup> remainingTextLineGroups;
     /**
      * Indicates that object was drawn completely.
      */
@@ -31,14 +35,14 @@ public class PdfParagraphDrawer implements Drawer {
             return DrawResult.COMPLETE;
         }
         float availableWidth = drawableArea.getAvailableWidth();
-        List<TextLine> lines = prepareOrRestoreTextLines(availableWidth);
+        List<TextLineGroup> lines = prepareOrRestoreTextLines(availableWidth);
         return doDraw(drawableArea, lines, availableWidth);
     }
 
-    private List<TextLine> prepareOrRestoreTextLines(float availableWidth) {
-        if (remainingTextLines != null) {
-            List<TextLine> lines = remainingTextLines;
-            remainingTextLines = null;
+    private List<TextLineGroup> prepareOrRestoreTextLines(float availableWidth) {
+        if (remainingTextLineGroups != null) {
+            List<TextLineGroup> lines = remainingTextLineGroups;
+            remainingTextLineGroups = null;
             return lines;
         }
 
@@ -50,26 +54,36 @@ public class PdfParagraphDrawer implements Drawer {
             textLines.get(0).setFirst(true);
             textLines.get(textLines.size() - 1).setLast(true);
         }
-        return textLines;
+        return groupLines(textLines);
     }
 
-    private DrawResult doDraw(DrawableArea drawableArea, List<TextLine> lines, float availableWidth) {
+    private DrawResult doDraw(DrawableArea drawableArea, List<TextLineGroup> lineGroups, float availableWidth) {
         PdfParagraphProperties paragraphProperties = paragraph.getParagraphProperties();
         Box margin = paragraphProperties.getMargin();
-        boolean anyLineDrawn = false;
-        for (int i = 0; i < lines.size(); i++) {
-            TextLine line = lines.get(i);
 
-            float topMargin = line.isFirst() ? margin.getTop() : 0f;
-            float topPadding = line.isFirst() ? 0f : paragraphProperties.getLineSpacingInPixels();
-            if (drawableArea.canDraw(line, topPadding, topMargin)) {
+        boolean anyLineDrawn = false;
+        for (int lineGroupNum = 0; lineGroupNum < lineGroups.size(); lineGroupNum++) {
+            TextLineGroup lineGroup = lineGroups.get(lineGroupNum);
+
+            CompositeBlockElement composite = buildCompositeBlockElement(lineGroup);
+
+            if (drawableArea.canDraw(composite)) {
                 anyLineDrawn = true;
 
-                float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraphProperties);
-                float bottomMargin = line.isLast() ? margin.getBottom() : 0f;
-                drawableArea.drawTextLine(new DrawableTextLine(line, leftIndent, topPadding, topMargin, bottomMargin));
+                for (int lineNum = 0; lineNum < lineGroup.size(); lineNum++) {
+                    TextLine line = lineGroup.get(lineNum);
+                    float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraphProperties);
+                    float bottomMargin = line.isLast() ? margin.getBottom() : 0f;
+                    drawableArea.drawTextLine(
+                        new DrawableTextLine(line,
+                            leftIndent,
+                            composite.getTopPadding(lineNum),
+                            composite.getTopMargin(lineNum),
+                            bottomMargin)
+                    );
+                }
             } else {
-                remainingTextLines = lines.subList(i, lines.size());
+                remainingTextLineGroups = lineGroups.subList(lineGroupNum, lineGroups.size());
                 if (anyLineDrawn) {
                     return DrawResult.PARTIAL;
                 } else {
@@ -79,6 +93,29 @@ public class PdfParagraphDrawer implements Drawer {
         }
         isComplete = true;
         return DrawResult.COMPLETE;
+    }
+
+    private CompositeBlockElement buildCompositeBlockElement(TextLineGroup lineGroup) {
+        PdfParagraphProperties paragraphProperties = paragraph.getParagraphProperties();
+        Box margin = paragraphProperties.getMargin();
+
+        CompositeBlockElement composite = new CompositeBlockElement();
+
+        for (TextLine line : lineGroup) {
+            float topMargin = line.isFirst() ? margin.getTop() : 0f;
+            float topPadding = line.isFirst() ? 0f : paragraphProperties.getLineSpacingInPixels();
+            composite.addBlockElement(line, topPadding, topMargin);
+        }
+
+        return composite;
+    }
+
+    private List<TextLineGroup> groupLines(List<TextLine> textLines) {
+        if (paragraph.getParagraphProperties().isOrphanControl()) {
+            return groupEdges(textLines, 2).stream().map(TextLineGroup::new).collect(toList());
+        } else {
+            return textLines.stream().map(TextLineGroup::new).collect(toList());
+        }
     }
 
     private float chooseLeftIndent(float availableWidth,

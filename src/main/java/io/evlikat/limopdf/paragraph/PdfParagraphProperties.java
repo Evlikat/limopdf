@@ -18,6 +18,8 @@ public class PdfParagraphProperties {
     private HorizontalTextAlignment horizontalTextAlignment = HorizontalTextAlignment.LEFT;
     @Builder.Default
     private final PdfCharacterProperties characterProperties = new PdfCharacterProperties();
+    @Builder.Default
+    private boolean orphanControl = true;
 
     public float getLineSpacingInPixels() {
         return (getLineSpacing() - 1f) * getCharacterProperties().getHeightInPixels();

@@ -1,5 +1,6 @@
 package io.evlikat.limopdf.util;
 
+import com.testautomationguru.utility.CompareMode;
 import com.testautomationguru.utility.PDFUtil;
 import io.evlikat.limopdf.PdfDocument;
 import lombok.SneakyThrows;
@@ -13,6 +14,7 @@ public class PdfComparator {
     private static final PDFUtil PDF_COMPARATOR = new PDFUtil();
 
     static {
+        PDF_COMPARATOR.setCompareMode(CompareMode.VISUAL_MODE);
 //        PDF_COMPARATOR.enableLog();
     }
 

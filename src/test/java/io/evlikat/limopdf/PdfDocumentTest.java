@@ -83,7 +83,7 @@ public class PdfDocumentTest {
     @Test(timeout = 3000L)
     public void shouldAddParagraphsMultiplePages() {
         for (int i = 1; i <= 50; i++) {
-            doc.addParagraph(new PdfParagraph(i + ": " + loremIpsum(), boxed(LEFT, Box.topBottom(10f))));
+            doc.addParagraph(new PdfParagraph(i + ": " + loremIpsum(i % 3 + 1), boxed(LEFT, Box.topBottom(10f))));
         }
 
         pdfAreEqual("shouldAddParagraphsMultiplePages.pdf", doc);

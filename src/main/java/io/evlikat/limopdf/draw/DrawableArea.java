@@ -1,7 +1,7 @@
 package io.evlikat.limopdf.draw;
 
 import io.evlikat.limopdf.CurrentPositionHolder;
-import io.evlikat.limopdf.util.IBlock;
+import io.evlikat.limopdf.util.IBlockElement;
 import io.evlikat.limopdf.util.devtools.PrintMode;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -26,9 +26,9 @@ public class DrawableArea {
         this.availableHeight = availableHeight;
     }
 
-    public boolean canDraw(IBlock block, float topPadding, float topMargin) {
-        float margin = Math.max(position.getLastBottomMargin(), topMargin);
-        return availableHeight - topPadding >= (margin + block.getHeight());
+    public boolean canDraw(IBlockElement blockElement) {
+        float margin = Math.max(position.getLastBottomMargin(), blockElement.getTopMargin());
+        return availableHeight - blockElement.getTopPadding() >= (margin + blockElement.getHeight());
     }
 
     @SneakyThrows
