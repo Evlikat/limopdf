@@ -19,7 +19,9 @@ public class PdfParagraphProperties {
     @Builder.Default
     private final PdfCharacterProperties characterProperties = new PdfCharacterProperties();
     @Builder.Default
-    private boolean orphanControl = true;
+    private boolean keepTogether = false;
+    @Builder.Default
+    private int maxOrphanLinesAllowed = 2;
 
     public float getLineSpacingInPixels() {
         return (getLineSpacing() - 1f) * getCharacterProperties().getHeightInPixels();

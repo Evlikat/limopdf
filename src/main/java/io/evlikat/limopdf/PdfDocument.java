@@ -1,8 +1,8 @@
 package io.evlikat.limopdf;
 
+import io.evlikat.limopdf.page.PageSpecification;
 import io.evlikat.limopdf.paragraph.PdfParagraph;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +10,22 @@ import java.io.OutputStream;
 
 public class PdfDocument {
 
-    private final PDDocument document = new PDDocument();
-    private final PageGuard guard = new PageGuard(document);
+    private final PDDocument document;
+    private final PageGuard guard;
+
+    public PdfDocument() {
+        this.document = new PDDocument();
+        this.guard = new PageGuard(document);
+    }
+
+    public PdfDocument(PageSpecification pageSpecification) {
+        this.document = new PDDocument();
+        this.guard = new PageGuard(document, pageSpecification);
+    }
+
+    public void setPageSpecification(PageSpecification pageSpecification) {
+        this.guard.setPageSpecification(pageSpecification);
+    }
 
     public void addParagraph(PdfParagraph paragraph) {
         guard.addParagraph(paragraph);

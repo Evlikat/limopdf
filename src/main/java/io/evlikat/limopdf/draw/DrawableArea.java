@@ -58,6 +58,12 @@ public class DrawableArea {
         availableHeight -= totalBlockHeight;
 
         contentStream.endText();
+
+        position.setBlank(false);
+    }
+
+    public boolean isBlank() {
+        return position.isBlank();
     }
 
     private void drawDebugLines(TextLine line, float tx, float ty) throws IOException {

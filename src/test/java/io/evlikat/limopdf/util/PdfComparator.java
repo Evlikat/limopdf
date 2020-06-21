@@ -6,8 +6,10 @@ import io.evlikat.limopdf.PdfDocument;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.net.URL;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PdfComparator {
 
@@ -22,7 +24,12 @@ public class PdfComparator {
     public static void pdfAreEqual(String expected, PdfDocument actual) {
         File tempFile = File.createTempFile("sample", "pdf");
         actual.save(tempFile);
-        File expectedFile = new File(PdfComparator.class.getResource("/sample/" + expected).toURI());
+        String expectedResourceName = "/sample/" + expected;
+        URL resource = PdfComparator.class.getResource(expectedResourceName);
+        if (resource == null) {
+            fail("No resource for test: " + expectedResourceName);
+        }
+        File expectedFile = new File(resource.toURI());
         assertTrue(PDF_COMPARATOR.compare(
             expectedFile.getAbsolutePath(),
             tempFile.getAbsolutePath()

@@ -2,10 +2,12 @@ package io.evlikat.limopdf;
 
 import io.evlikat.limopdf.draw.DrawableArea;
 import io.evlikat.limopdf.page.PageSpecification;
+import io.evlikat.limopdf.page.PageSpecifications;
 import io.evlikat.limopdf.page.PdfPage;
 import io.evlikat.limopdf.paragraph.PdfParagraph;
 import io.evlikat.limopdf.util.Box;
 import io.evlikat.limopdf.util.Position;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -14,8 +16,9 @@ public class PageGuard {
 
     private final PDDocument document;
     private PdfPage currentPage;
-    private final CurrentPositionHolder currentPosition = new CurrentPositionHolder(null, 0f);
-    private PageSpecification pageSpecification = new PageSpecification();
+    private final CurrentPositionHolder currentPosition = new CurrentPositionHolder();
+    @Setter
+    private PageSpecification pageSpecification = PageSpecifications.A4;
 
     public PageGuard(PDDocument document) {
         this.document = document;
@@ -59,7 +62,9 @@ public class PageGuard {
             currentPage.close();
         }
         Box margin = pageSpecification.getMargin();
-        currentPosition.setPosition(Position.of(margin.getLeft(), pageSpecification.getSize().getHeight() - margin.getTop()));
+
+        currentPosition.reset(Position.of(margin.getLeft(), pageSpecification.getSize().getHeight() - margin.getTop()));
+
         currentPage = new PdfPage(document, new PDPage(pageSpecification.getSize()), margin);
         document.addPage(currentPage.getNativePage());
     }
