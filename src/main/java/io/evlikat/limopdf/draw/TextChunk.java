@@ -16,4 +16,9 @@ public class TextChunk {
     public void setUpContentStream(PDPageContentStream contentStream) {
         contentStream.setFont(characterProperties.getFont().getNativeFont(), characterProperties.getFontSize());
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
 }

@@ -5,7 +5,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class PdfParagraphProperties {
@@ -20,6 +20,8 @@ public class PdfParagraphProperties {
     private final PdfCharacterProperties characterProperties = new PdfCharacterProperties();
     @Builder.Default
     private boolean keepTogether = false;
+    @Builder.Default
+    private boolean keepWithNext = false;
     @Builder.Default
     private int maxOrphanLinesAllowed = 2;
 

@@ -15,9 +15,13 @@ interface TextLines {
 @AllArgsConstructor
 class TextLineGroup implements TextLines, Iterable<TextLine> {
     private final List<TextLine> textLines;
+    private final int confirmGroupIndex;
+    private final int confirmLineIndex;
 
-    TextLineGroup(TextLine textLine) {
+    TextLineGroup(TextLine textLine, int confirmGroupIndex, int confirmLineIndex) {
         this.textLines = Collections.singletonList(textLine);
+        this.confirmGroupIndex = confirmGroupIndex;
+        this.confirmLineIndex = confirmLineIndex;
     }
 
     int size() {

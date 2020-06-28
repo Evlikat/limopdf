@@ -1,4 +1,4 @@
-package io.evlikat.limopdf.paragraph;
+package io.evlikat.limopdf.structure;
 
 import io.evlikat.limopdf.Drawer;
 

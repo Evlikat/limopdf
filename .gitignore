@@ -4,5 +4,6 @@
 /gradle/
 /build/
 /out/
+/test-out/
 
 /src/test/resources/sample/some.pdf

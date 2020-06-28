@@ -4,7 +4,8 @@ import io.evlikat.limopdf.draw.DrawableArea;
 import io.evlikat.limopdf.page.PageSpecification;
 import io.evlikat.limopdf.page.PageSpecifications;
 import io.evlikat.limopdf.page.PdfPage;
-import io.evlikat.limopdf.paragraph.PdfParagraph;
+import io.evlikat.limopdf.structure.Drawable;
+import io.evlikat.limopdf.structure.StickyDrawable;
 import io.evlikat.limopdf.util.Box;
 import io.evlikat.limopdf.util.Position;
 import lombok.Setter;
@@ -12,7 +13,9 @@ import lombok.SneakyThrows;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
-public class PageGuard {
+import java.util.Collection;
+
+public class PageGuard implements DrawableSink {
 
     private final PDDocument document;
     private PdfPage currentPage;
@@ -30,8 +33,20 @@ public class PageGuard {
     }
 
     @SneakyThrows
-    public void addParagraph(PdfParagraph paragraph) {
-        Drawer drawer = paragraph.drawer();
+    @Override
+    public void add(Drawable stickyDrawable) {
+        drawWith(stickyDrawable.drawer());
+    }
+
+    @SneakyThrows
+    @Override
+    public void add(StickyDrawable stickyDrawable, Collection<Drawable> otherDrawables) {
+        StickyDrawer drawer = stickyDrawable.drawer();
+        drawer.addFollowingDrawables(otherDrawables);
+        drawWith(drawer);
+    }
+
+    private void drawWith(Drawer drawer) {
         DrawResult drawResult;
         while (true) {
             PdfPage page = getCurrentPage();

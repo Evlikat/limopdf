@@ -2,16 +2,23 @@ package io.evlikat.limopdf;
 
 import io.evlikat.limopdf.page.PageSpecification;
 import io.evlikat.limopdf.paragraph.PdfParagraph;
+import io.evlikat.limopdf.structure.Drawable;
+import io.evlikat.limopdf.structure.DrawableGroups;
+import lombok.SneakyThrows;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PdfDocument {
 
     private final PDDocument document;
     private final PageGuard guard;
+
+    private final List<Drawable> elements = new ArrayList<>();
 
     public PdfDocument() {
         this.document = new PDDocument();
@@ -28,7 +35,7 @@ public class PdfDocument {
     }
 
     public void addParagraph(PdfParagraph paragraph) {
-        guard.addParagraph(paragraph);
+        elements.add(paragraph);
     }
 
     public void save(String fileName) {
@@ -58,7 +65,13 @@ public class PdfDocument {
         }
     }
 
+    @SneakyThrows
+    public void close() {
+        document.close();
+    }
+
     private void beforeSave() {
+        DrawableGroups.buildDrawableGroup(elements).forEach(drawableGroup -> drawableGroup.putTo(guard));
         guard.close();
     }
 }

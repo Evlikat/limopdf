@@ -1,13 +1,14 @@
 package io.evlikat.limopdf.paragraph;
 
-import io.evlikat.limopdf.Drawer;
+import io.evlikat.limopdf.structure.Drawable;
+import io.evlikat.limopdf.structure.StickyDrawable;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class PdfParagraph implements Drawable {
+public class PdfParagraph implements StickyDrawable, Drawable {
 
     private final PdfParagraphProperties paragraphProperties;
     private final List<PdfParagraphChunk> chunks = new ArrayList<>();
@@ -26,7 +27,12 @@ public class PdfParagraph implements Drawable {
     }
 
     @Override
-    public Drawer drawer() {
+    public PdfParagraphDrawer drawer() {
         return new PdfParagraphDrawer(this);
+    }
+
+    @Override
+    public boolean isKeepWithNext() {
+        return paragraphProperties.isKeepWithNext();
     }
 }

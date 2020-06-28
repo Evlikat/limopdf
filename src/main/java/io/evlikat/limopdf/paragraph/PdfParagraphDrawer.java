@@ -1,56 +1,45 @@
 package io.evlikat.limopdf.paragraph;
 
 import io.evlikat.limopdf.DrawResult;
-import io.evlikat.limopdf.Drawer;
+import io.evlikat.limopdf.StickyDrawer;
 import io.evlikat.limopdf.draw.DrawableArea;
 import io.evlikat.limopdf.draw.DrawableTextLine;
 import io.evlikat.limopdf.draw.TextLine;
+import io.evlikat.limopdf.structure.Drawable;
 import io.evlikat.limopdf.util.Box;
 import io.evlikat.limopdf.util.CompositeBlockElement;
 
+import java.util.Collection;
 import java.util.List;
 
-public class PdfParagraphDrawer implements Drawer {
+// TODO: this is not only a paragraph drawer: decompose
+public class PdfParagraphDrawer implements StickyDrawer {
 
-    private final PdfParagraph paragraph;
     /**
      * Contains partial paragraph lines ready to draw.
      */
-    private TextLineGroupIterator lineGroupIterator;
+    private final ParagraphIterator paragraphIterator;
 
     public PdfParagraphDrawer(PdfParagraph paragraph) {
-        this.paragraph = paragraph;
+        this.paragraphIterator = new ParagraphIterator(List.of(paragraph));
+    }
+
+    @Override
+    public void addFollowingDrawables(Collection<Drawable> drawables) {
+        drawables.forEach(d -> paragraphIterator.addFollowingParagraph((PdfParagraph) d));
     }
 
     @Override
     public DrawResult draw(DrawableArea drawableArea) {
-        if (lineGroupIterator != null && !lineGroupIterator.hasNext()) {
+        if (paragraphIterator.isComplete()) {
             return DrawResult.COMPLETE;
         }
         float availableWidth = drawableArea.getAvailableWidth();
-        TextLineGroupIterator lineGroupIterator = prepareOrRestoreTextLines(availableWidth);
+        TextLineGroupIterator lineGroupIterator = paragraphIterator.getTextLineGroupIteratorFor(availableWidth);
         return doDraw(drawableArea, lineGroupIterator, availableWidth);
     }
 
-    private TextLineGroupIterator prepareOrRestoreTextLines(float availableWidth) {
-        if (lineGroupIterator == null) {
-            Box margin = paragraph.getParagraphProperties().getMargin();
-            float remainingContentWidth = availableWidth - margin.getLeft() - margin.getRight();
-
-            List<TextLine> textLines = PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(), remainingContentWidth);
-            if (!textLines.isEmpty()) {
-                textLines.get(0).setFirst(true);
-                textLines.get(textLines.size() - 1).setLast(true);
-            }
-            lineGroupIterator = new TextLineGroupIterator(textLines, paragraph.getParagraphProperties());
-        }
-        return lineGroupIterator;
-    }
-
     private DrawResult doDraw(DrawableArea drawableArea, TextLineGroupIterator lineGroupIterator, float availableWidth) {
-        PdfParagraphProperties paragraphProperties = paragraph.getParagraphProperties();
-        Box margin = paragraphProperties.getMargin();
-
         boolean anyLineDrawn = false;
         while (lineGroupIterator.hasNext()) {
             TextLineGroup lineGroup = lineGroupIterator.peek();
@@ -62,8 +51,8 @@ public class PdfParagraphDrawer implements Drawer {
 
                 for (int lineNum = 0; lineNum < lineGroup.size(); lineNum++) {
                     TextLine line = lineGroup.get(lineNum);
-                    float leftIndent = chooseLeftIndent(availableWidth, line.getWidth(), paragraphProperties);
-                    float bottomMargin = line.isLast() ? margin.getBottom() : 0f;
+                    float leftIndent = chooseLeftIndent(availableWidth, line);
+                    float bottomMargin = line.isLast() ? line.getParagraphMargin().getBottom() : 0f;
                     drawableArea.drawTextLine(
                         new DrawableTextLine(line,
                             leftIndent,
@@ -76,7 +65,7 @@ public class PdfParagraphDrawer implements Drawer {
                 lineGroupIterator.confirm(lineGroup);
             } else {
                 if (drawableArea.isBlank()) {
-                    lineGroupIterator.dropKeepTogether();
+                    lineGroupIterator.ignoreKeepTogether();
                     continue;
                 }
                 if (anyLineDrawn) {
@@ -90,14 +79,11 @@ public class PdfParagraphDrawer implements Drawer {
     }
 
     private CompositeBlockElement buildCompositeBlockElement(TextLineGroup lineGroup) {
-        PdfParagraphProperties paragraphProperties = paragraph.getParagraphProperties();
-        Box margin = paragraphProperties.getMargin();
-
         CompositeBlockElement composite = new CompositeBlockElement();
 
         for (TextLine line : lineGroup) {
-            float topMargin = line.isFirst() ? margin.getTop() : 0f;
-            float topPadding = line.isFirst() ? 0f : paragraphProperties.getLineSpacingInPixels();
+            float topMargin = line.isFirst() ? line.getParagraphMargin().getTop() : 0f;
+            float topPadding = line.isFirst() ? 0f : line.getLineSpacingInPixels();
             composite.addBlockElement(line, topPadding, topMargin);
         }
 
@@ -105,18 +91,17 @@ public class PdfParagraphDrawer implements Drawer {
     }
 
     private float chooseLeftIndent(float availableWidth,
-                                   float lineWidth,
-                                   PdfParagraphProperties paragraphProperties) {
-        Box margin = paragraph.getParagraphProperties().getMargin();
+                                   TextLine textLine) {
+        Box margin = textLine.getParagraphMargin();
         float remainingContentWidth = availableWidth - margin.getLeft() - margin.getRight();
-        HorizontalTextAlignment horizontalTextAlignment = paragraphProperties.getHorizontalTextAlignment();
+        HorizontalTextAlignment horizontalTextAlignment = textLine.getHorizontalTextAlignment();
         switch (horizontalTextAlignment) {
             case LEFT:
                 return margin.getLeft();
             case CENTER:
-                return margin.getLeft() + (remainingContentWidth - lineWidth) / 2;
+                return margin.getLeft() + (remainingContentWidth - textLine.getWidth()) / 2;
             case RIGHT:
-                return margin.getLeft() + remainingContentWidth - lineWidth;
+                return margin.getLeft() + remainingContentWidth - textLine.getWidth();
         }
         throw new UnsupportedOperationException("Unsupported alignment: " + horizontalTextAlignment);
     }
