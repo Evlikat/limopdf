@@ -8,12 +8,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-interface TextLines {
-}
-
 @Data
 @AllArgsConstructor
-class TextLineGroup implements TextLines, Iterable<TextLine> {
+class TextLineGroup implements Iterable<TextLine> {
+
     private final List<TextLine> textLines;
     private final int confirmGroupIndex;
     private final int confirmLineIndex;
@@ -22,14 +20,6 @@ class TextLineGroup implements TextLines, Iterable<TextLine> {
         this.textLines = Collections.singletonList(textLine);
         this.confirmGroupIndex = confirmGroupIndex;
         this.confirmLineIndex = confirmLineIndex;
-    }
-
-    int size() {
-        return textLines.size();
-    }
-
-    TextLine get(int index) {
-        return textLines.get(index);
     }
 
     @Override

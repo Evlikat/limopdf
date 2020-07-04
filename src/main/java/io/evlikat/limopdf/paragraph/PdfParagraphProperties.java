@@ -1,6 +1,7 @@
 package io.evlikat.limopdf.paragraph;
 
 import io.evlikat.limopdf.util.Box;
+import io.evlikat.limopdf.util.Rule;
 import lombok.*;
 
 @Getter
@@ -25,6 +26,7 @@ public class PdfParagraphProperties {
     @Builder.Default
     private int maxOrphanLinesAllowed = 2;
 
+    @Rule
     public float getLineSpacingInPixels() {
         return (getLineSpacing() - 1f) * getCharacterProperties().getHeightInPixels();
     }

@@ -3,7 +3,7 @@ package io.evlikat.limopdf.draw;
 import io.evlikat.limopdf.paragraph.HorizontalTextAlignment;
 import io.evlikat.limopdf.paragraph.PdfParagraph;
 import io.evlikat.limopdf.util.Box;
-import io.evlikat.limopdf.util.IRectangle;
+import io.evlikat.limopdf.util.IBlock;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -11,12 +11,10 @@ import lombok.SneakyThrows;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TextLine implements IRectangle {
+public class TextLine implements IBlock {
 
     @Getter
     private float height = 0f;
-    @Getter
-    private float width = 0f;
     @Getter
     private final List<TextChunk> chunks = new ArrayList<>();
     @Setter
@@ -42,7 +40,6 @@ public class TextLine implements IRectangle {
     @SneakyThrows
     public void addChunk(TextChunk chunk) {
         this.height = Math.max(height, chunk.getCharacterProperties().getHeightInPixels());
-        this.width += chunk.getWidth();
         this.chunks.add(chunk);
     }
 

@@ -2,7 +2,7 @@ package io.evlikat.limopdf.paragraph;
 
 import io.evlikat.limopdf.draw.TextChunk;
 import io.evlikat.limopdf.draw.TextLine;
-import io.evlikat.limopdf.util.font.PdfFont;
+import io.evlikat.limopdf.util.font.PdfFontProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -30,11 +30,14 @@ class PdfParagraphDrawerUtils {
 
         while (!chunkQueue.isEmpty()) {
             WrapCandidate<PdfParagraphChunk> item = chunkQueue.pop();
+            if (item.obj.getText().isEmpty()) {
+                continue;
+            }
             boolean forceWrapAllowed = item.forceWrapAllowed;
             PdfParagraphChunk chunk = item.obj;
 
             StringWidthMeasurer measurer = new StringWidthMeasurer(
-                chunk.getProperties().getFont(),
+                chunk.getProperties().getFontProperties(),
                 chunk.getProperties().getFontSize()
             );
 
@@ -45,13 +48,19 @@ class PdfParagraphDrawerUtils {
                 // Trailing spaces must be considered
                 float chunkWidth = measurer.measureString(chunkText);
                 remainingWidth -= chunkWidth;
-                currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth));
+                currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth, requiredWidth));
             } else {
                 WrapResult wrapResult = wrapText(chunkText, remainingWidth, forceWrapAllowed, measurer::measureString);
                 if (isNotBlank(wrapResult.currentLine)) {
-                    currentLine.addChunk(new TextChunk(wrapResult.currentLine, chunk.getProperties(), wrapResult.width));
+                    currentLine.addChunk(
+                        new TextChunk(
+                            wrapResult.currentLine,
+                            chunk.getProperties(),
+                            wrapResult.width,
+                            wrapResult.strippedWidth));
                 }
                 lines.add(currentLine);
+                remainingWidth = availableWidth;
 
                 PdfParagraphChunk newLineChunk = new PdfParagraphChunk(wrapResult.nextLine, chunk.getProperties());
                 WrapCandidate<PdfParagraphChunk> e =
@@ -108,7 +117,8 @@ class PdfParagraphDrawerUtils {
         return new WrapResult(
             stripEnd(currentLine, null),
             nextLineBuilder.toString(),
-            availableWidth - remainingWidth - lastStripWidth
+            availableWidth - remainingWidth - lastStripWidth,
+            availableWidth - remainingWidth
         );
     }
 
@@ -136,6 +146,7 @@ class PdfParagraphDrawerUtils {
         return new WrapResult(
             stripEnd(currentLineBuilder.toString(), null),
             nextLineBuilder.toString(),
+            availableWidth - remainingWidth,
             availableWidth - remainingWidth
         );
     }
@@ -145,6 +156,7 @@ class PdfParagraphDrawerUtils {
         final String currentLine;
         final String nextLine;
         final float width;
+        final float strippedWidth;
     }
 
     @Data
@@ -164,12 +176,12 @@ class PdfParagraphDrawerUtils {
 
     @AllArgsConstructor
     private static final class StringWidthMeasurer {
-        private final PdfFont font;
+        private final PdfFontProperties fontProperties;
         private final float fontSize;
 
         @SneakyThrows
         public float measureString(String string) {
-            return font.getStringWidth(string).toPixels(fontSize);
+            return fontProperties.getStringWidth(string).toPixels(fontSize);
         }
     }
 

@@ -163,6 +163,6 @@ public class TextLineGroupIteratorTest {
     }
 
     private TextLine line(String text) {
-        return new TextLine(new TextChunk(text, new PdfCharacterProperties(), 10));
+        return new TextLine(new TextChunk(text, new PdfCharacterProperties(), 10, 10));
     }
 }

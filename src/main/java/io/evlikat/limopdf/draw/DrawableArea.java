@@ -1,6 +1,7 @@
 package io.evlikat.limopdf.draw;
 
 import io.evlikat.limopdf.CurrentPositionHolder;
+import io.evlikat.limopdf.paragraph.PdfCharacterProperties;
 import io.evlikat.limopdf.util.IBlockElement;
 import io.evlikat.limopdf.util.devtools.PrintMode;
 import lombok.Getter;
@@ -34,30 +35,54 @@ public class DrawableArea {
     @SneakyThrows
     public void drawTextLine(DrawableTextLine drawableTextLine) {
 
-        TextLine line = drawableTextLine.getLine();
-
         float topMargin = Math.max(position.getLastBottomMargin(), drawableTextLine.getTopMargin());
 
-        float totalBlockHeight = line.getHeight() + topMargin + drawableTextLine.getTopPadding();
+        float totalBlockHeight = drawableTextLine.getHeight() + topMargin + drawableTextLine.getTopPadding();
 
         float tx = position.getX() + drawableTextLine.getLeftIndent();
         float ty = position.getY() - totalBlockHeight;
 
-        drawDebugLines(line, tx, ty);
+        drawDebugLines(drawableTextLine, tx, ty);
 
-        contentStream.beginText();
+        for (DrawableTextChunk textChunk : drawableTextLine.getChunks()) {
+            PdfCharacterProperties characterProperties = textChunk.getCharacterProperties();
 
-        for (TextChunk textChunk : line.getChunks()) {
-            textChunk.setUpContentStream(contentStream);
+            characterProperties.setUpContentStream(contentStream);
+
+            contentStream.beginText();
             contentStream.newLineAtOffset(tx, ty);
             contentStream.showText(textChunk.getText());
+            contentStream.endText();
+
+            float chunkWidth = textChunk.getWidth();
+
+            if (characterProperties.isUnderline()) {
+                float underlineWidth = characterProperties.getTextDecorationLineWidth();
+                float underlineOffset = characterProperties.getUnderlineOffset();
+
+                contentStream.setLineWidth(underlineWidth);
+                contentStream.moveTo(tx, ty + underlineOffset);
+                contentStream.lineTo(tx + chunkWidth, ty + underlineOffset);
+                contentStream.stroke();
+            }
+
+            if (characterProperties.isStrikethrough()) {
+                float underlineWidth = characterProperties.getTextDecorationLineWidth();
+                float underlineOffset = characterProperties.getStrikethroughOffset();
+
+                contentStream.setLineWidth(underlineWidth);
+                contentStream.moveTo(tx, ty + underlineOffset);
+                contentStream.lineTo(tx + chunkWidth, ty + underlineOffset);
+                contentStream.stroke();
+            }
+
+            tx += chunkWidth;
         }
 
         position.minusY(totalBlockHeight);
         position.setLastBottomMargin(drawableTextLine.getBottomMargin());
         availableHeight -= totalBlockHeight;
 
-        contentStream.endText();
 
         position.setBlank(false);
     }
@@ -66,7 +91,7 @@ public class DrawableArea {
         return position.isBlank();
     }
 
-    private void drawDebugLines(TextLine line, float tx, float ty) throws IOException {
+    private void drawDebugLines(DrawableTextLine line, float tx, float ty) throws IOException {
         if (!PrintMode.INSTANCE.isDebug()) {
             return;
         }

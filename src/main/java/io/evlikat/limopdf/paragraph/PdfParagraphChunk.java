@@ -15,4 +15,9 @@ public class PdfParagraphChunk {
         this.text = text;
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
 }

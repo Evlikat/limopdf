@@ -1,29 +1,28 @@
 package io.evlikat.limopdf.util.font;
 
-import io.evlikat.limopdf.util.measurement.TsuPromille;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 @Getter
 public class PdfFont {
 
-    public static final PdfFont HELVETICA = new PdfFont(PDType1Font.HELVETICA);
+    public static final PdfFont HELVETICA = new PdfFont(
+        PDType1Font.HELVETICA,
+        PDType1Font.HELVETICA_BOLD,
+        PDType1Font.HELVETICA_BOLD_OBLIQUE,
+        PDType1Font.HELVETICA_OBLIQUE
+    );
 
-    private final PDFont nativeFont;
+    private final PDFont normalFont;
+    private final PDFont boldFont;
+    private final PDFont boldObliqueFont;
+    private final PDFont obliqueFont;
 
-    private PdfFont(PDFont nativeFont) {
-        this.nativeFont = nativeFont;
-    }
-
-    @SneakyThrows
-    public TsuPromille getHeight() {
-        return TsuPromille.of(nativeFont.getBoundingBox().getHeight());
-    }
-
-    @SneakyThrows
-    public TsuPromille getStringWidth(String string) {
-        return TsuPromille.of(nativeFont.getStringWidth(string));
+    public PdfFont(PDFont normalFont, PDFont boldFont, PDFont boldObliqueFont, PDFont obliqueFont) {
+        this.normalFont = normalFont;
+        this.boldFont = boldFont;
+        this.boldObliqueFont = boldObliqueFont;
+        this.obliqueFont = obliqueFont;
     }
 }

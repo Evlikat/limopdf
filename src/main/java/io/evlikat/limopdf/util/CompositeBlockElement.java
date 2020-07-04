@@ -7,6 +7,13 @@ public class CompositeBlockElement implements IBlockElement {
 
     private final List<IBlockElement> innerBlockElements = new ArrayList<>();
 
+    public CompositeBlockElement() {
+    }
+
+    public CompositeBlockElement(List<? extends IBlockElement> innerBlockElements) {
+        this.innerBlockElements.addAll(innerBlockElements);
+    }
+
     public void addBlockElement(IBlockElement blockElement) {
         innerBlockElements.add(blockElement);
     }

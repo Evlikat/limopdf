@@ -1,12 +1,13 @@
 package io.evlikat.limopdf;
 
 import io.evlikat.limopdf.page.PageSpecifications;
-import io.evlikat.limopdf.paragraph.HorizontalTextAlignment;
-import io.evlikat.limopdf.paragraph.PdfParagraph;
-import io.evlikat.limopdf.paragraph.PdfParagraphProperties;
+import io.evlikat.limopdf.paragraph.*;
 import io.evlikat.limopdf.util.Box;
+import io.evlikat.limopdf.util.color.Color;
 import io.evlikat.limopdf.util.devtools.PrintMode;
+import io.evlikat.limopdf.util.font.PdfFontProperties;
 import lombok.SneakyThrows;
+import one.util.streamex.EntryStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,13 +17,18 @@ import org.junit.rules.TestName;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.evlikat.limopdf.paragraph.HorizontalTextAlignment.*;
 import static io.evlikat.limopdf.paragraph.PdfParagraphProperties.builder;
+import static io.evlikat.limopdf.paragraph.TextUtils.splitByWords;
 import static io.evlikat.limopdf.util.PdfComparator.pdfAreEqual;
 import static io.evlikat.limopdf.util.TextGenerator.loremIpsum;
+import static io.evlikat.limopdf.util.color.Color.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PdfDocumentTest {
 
@@ -67,6 +73,23 @@ public class PdfDocumentTest {
     public void shouldAddSomeParagraphs() {
         doc.addParagraph(new PdfParagraph(loremIpsum()));
         doc.addParagraph(new PdfParagraph(loremIpsum().replaceAll("\\s+", "")));
+    }
+
+    @Test(timeout = 3000L)
+    public void shouldAddStyledParagraphs() {
+        List<PdfParagraphChunk> chunks1 = EntryStream.of(splitByWords(loremIpsum(2)))
+            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, byIndex(index, BLACK)))
+            .collect(Collectors.toList());
+
+        PdfParagraph paragraph1 = new PdfParagraph(chunks1);
+
+        List<PdfParagraphChunk> chunks2 = EntryStream.of(splitByWords(loremIpsum(2)))
+            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, byIndex(index, RED)))
+            .collect(Collectors.toList());
+        PdfParagraph paragraph2 = new PdfParagraph(chunks2);
+
+        doc.addParagraph(paragraph1);
+        doc.addParagraph(paragraph2);
     }
 
     @Test(timeout = 3000L)
@@ -153,6 +176,18 @@ public class PdfDocumentTest {
             .horizontalTextAlignment(CENTER)
             .margin(Box.topBottom(15f))
             .keepWithNext(true)
+            .build();
+    }
+
+    private PdfCharacterProperties byIndex(int index, Color color) {
+        return PdfCharacterProperties.builder()
+            .fontProperties(PdfFontProperties.builder()
+                .isBold((index & 0x01) == 0x01)
+                .isItalic((index & 0x02) == 0x02)
+                .build())
+            .isUnderline((index & 0x04) == 0x04)
+            .isStrikethrough((index & 0x08) == 0x08)
+            .color(color)
             .build();
     }
 }

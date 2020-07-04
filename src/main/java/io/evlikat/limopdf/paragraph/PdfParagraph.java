@@ -13,6 +13,15 @@ public class PdfParagraph implements StickyDrawable, Drawable {
     private final PdfParagraphProperties paragraphProperties;
     private final List<PdfParagraphChunk> chunks = new ArrayList<>();
 
+    public PdfParagraph(List<PdfParagraphChunk> chunks, PdfParagraphProperties paragraphProperties) {
+        this.paragraphProperties = paragraphProperties;
+        this.chunks.addAll(chunks);
+    }
+
+    public PdfParagraph(List<PdfParagraphChunk> chunks) {
+        this(chunks, new PdfParagraphProperties());
+    }
+
     public PdfParagraph(PdfParagraphChunk chunk, PdfParagraphProperties paragraphProperties) {
         this.paragraphProperties = paragraphProperties;
         this.chunks.add(chunk);

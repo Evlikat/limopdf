@@ -44,6 +44,11 @@ public class TextLineGroupIterator {
         return preparedGroup;
     }
 
+    /**
+     * Marks specified line group as drawn that allows to start preparation of the next line group.
+     *
+     * @param group a group to confirm
+     */
     public void confirm(TextLineGroup group) {
         currentLineIndex = group.getConfirmLineIndex();
         currentGroupIndex = group.getConfirmGroupIndex();
