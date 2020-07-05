@@ -1,11 +1,13 @@
 package io.evlikat.limopdf.paragraph;
 
+import io.evlikat.limopdf.page.PageSpecification;
 import io.evlikat.limopdf.structure.Drawable;
 import io.evlikat.limopdf.structure.StickyDrawable;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 public class PdfParagraph implements StickyDrawable, Drawable {
@@ -43,5 +45,10 @@ public class PdfParagraph implements StickyDrawable, Drawable {
     @Override
     public boolean isKeepWithNext() {
         return paragraphProperties.isKeepWithNext();
+    }
+
+    @Override
+    public Optional<PageSpecification> pageBreak() {
+        return Optional.ofNullable(paragraphProperties.getNextPageSpecification());
     }
 }

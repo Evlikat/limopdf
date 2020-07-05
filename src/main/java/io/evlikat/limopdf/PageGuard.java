@@ -34,8 +34,9 @@ public class PageGuard implements DrawableSink {
 
     @SneakyThrows
     @Override
-    public void add(Drawable stickyDrawable) {
-        drawWith(stickyDrawable.drawer());
+    public void add(Drawable drawable) {
+        drawWith(drawable.drawer());
+        drawable.pageBreak().ifPresent(this::newPage);
     }
 
     @SneakyThrows
@@ -44,6 +45,7 @@ public class PageGuard implements DrawableSink {
         StickyDrawer drawer = stickyDrawable.drawer();
         drawer.addFollowingDrawables(otherDrawables);
         drawWith(drawer);
+        stickyDrawable.pageBreak().ifPresent(this::newPage);
     }
 
     private void drawWith(Drawer drawer) {
@@ -57,6 +59,11 @@ public class PageGuard implements DrawableSink {
             }
             newPage();
         }
+    }
+
+    public void newPage(PageSpecification nextPageSpecification) {
+        this.pageSpecification = nextPageSpecification;
+        startNewPage();
     }
 
     public void newPage() {

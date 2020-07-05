@@ -2,9 +2,11 @@ package io.evlikat.limopdf.structure;
 
 import io.evlikat.limopdf.Drawer;
 import io.evlikat.limopdf.StickyDrawer;
+import io.evlikat.limopdf.page.PageSpecification;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,6 +71,11 @@ public class DrawableGroupsTest {
         }
 
         @Override
+        public Optional<PageSpecification> pageBreak() {
+            return Optional.empty();
+        }
+
+        @Override
         public boolean isKeepWithNext() {
             return true;
         }
@@ -79,6 +86,11 @@ public class DrawableGroupsTest {
         @Override
         public Drawer drawer() {
             return null;
+        }
+
+        @Override
+        public Optional<PageSpecification> pageBreak() {
+            return Optional.empty();
         }
     }
 }

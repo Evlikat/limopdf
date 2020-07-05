@@ -25,7 +25,8 @@ import static io.evlikat.limopdf.paragraph.PdfParagraphProperties.builder;
 import static io.evlikat.limopdf.paragraph.TextUtils.splitByWords;
 import static io.evlikat.limopdf.util.PdfComparator.pdfAreEqual;
 import static io.evlikat.limopdf.util.TextGenerator.loremIpsum;
-import static io.evlikat.limopdf.util.color.Color.*;
+import static io.evlikat.limopdf.util.color.Color.BLACK;
+import static io.evlikat.limopdf.util.color.Color.RED;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -162,6 +163,14 @@ public class PdfDocumentTest {
         doc.addParagraph(new PdfParagraph(loremIpsum(1, 2), builder().keepTogether(true).build()));
         doc.addParagraph(new PdfParagraph("Chapter II", title()));
         doc.addParagraph(new PdfParagraph(loremIpsum(3), builder().keepTogether(true).build()));
+    }
+
+    @Test(timeout = 3000L)
+    public void shouldHandlePageBreakWithDifferentPageSize() {
+        doc.setPageSpecification(PageSpecifications.A4);
+        doc.addParagraph(new PdfParagraph(loremIpsum(1),
+            PdfParagraphProperties.builder().nextPageSpecification(PageSpecifications.A5).build()));
+        doc.addParagraph(new PdfParagraph(loremIpsum(2)));
     }
 
     private PdfParagraphProperties boxed(HorizontalTextAlignment horizontalTextAlignment, Box margin) {

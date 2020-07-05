@@ -21,7 +21,7 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'one.util', name: 'streamex', version: '0.7.2'
-
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
 
