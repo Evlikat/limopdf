@@ -36,9 +36,14 @@ public class ParagraphIterator {
                 Box margin = paragraphProperties.getMargin();
                 float remainingContentWidth = availableWidth - margin.getLeft() - margin.getRight();
 
-                List<TextLine> textLines = PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(), remainingContentWidth);
+                List<TextLine> textLines = PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(),
+                    remainingContentWidth,
+                    paragraphProperties.getFirstLineIndent()
+                );
                 if (!textLines.isEmpty()) {
-                    textLines.get(0).setFirst(true);
+                    TextLine first = textLines.get(0);
+                    first.setFirst(true);
+                    first.setLineIndent(paragraphProperties.getFirstLineIndent());
                     textLines.get(textLines.size() - 1).setLast(true);
                     textLines.forEach(textLine -> textLine.setParagraph(paragraph));
                 }

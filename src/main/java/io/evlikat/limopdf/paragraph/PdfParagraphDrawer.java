@@ -78,6 +78,7 @@ public class PdfParagraphDrawer implements StickyDrawer {
             float bottomMargin = line.isLast() ? line.getParagraphMargin().getBottom() : 0f;
             return new DrawableTextLine(line,
                 availableWidth,
+                line.getLineIndent(),
                 topPadding,
                 topMargin,
                 bottomMargin);

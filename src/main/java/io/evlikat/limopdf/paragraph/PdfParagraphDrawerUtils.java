@@ -18,9 +18,11 @@ import static org.apache.commons.lang3.StringUtils.*;
 
 class PdfParagraphDrawerUtils {
 
-    static List<TextLine> wrapLines(List<PdfParagraphChunk> paragraphChunks, float availableWidth) {
+    static List<TextLine> wrapLines(List<PdfParagraphChunk> paragraphChunks,
+                                    float availableWidth,
+                                    float firstLineIndent) {
 
-        float remainingWidth = availableWidth;
+        float remainingWidth = availableWidth - firstLineIndent;
 
         List<TextLine> lines = new ArrayList<>();
         TextLine currentLine = new TextLine();

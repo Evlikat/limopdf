@@ -129,6 +129,19 @@ public class PdfDocumentTest {
     }
 
     @Test(timeout = 3000L)
+    public void shouldAddParagraphsWithDifferentIndents() {
+        doc.setPageSpecification(PageSpecifications.A5);
+        doc.addParagraph(new PdfParagraph(loremIpsum(1),
+            builder().margin(Box.topBottom(10f)).firstLineIndent(30f).build()));
+        doc.addParagraph(new PdfParagraph(loremIpsum(2),
+            builder().margin(Box.topBottom(10f)).firstLineIndent(60f).build()));
+        doc.addParagraph(new PdfParagraph(loremIpsum(2),
+            builder().margin(Box.topBottom(10f)).firstLineIndent(150f).build()));
+        doc.addParagraph(new PdfParagraph(loremIpsum(3),
+            builder().margin(Box.topBottom(10f)).firstLineIndent(-30f).build()));
+    }
+
+    @Test(timeout = 3000L)
     public void shouldAddKeepTogetherParagraphMovingNextPage() {
         doc.setPageSpecification(PageSpecifications.A5);
         doc.addParagraph(new PdfParagraph(loremIpsum(1), builder().keepTogether(true).build()));

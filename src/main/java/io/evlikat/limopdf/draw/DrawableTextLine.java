@@ -30,6 +30,7 @@ public class DrawableTextLine implements IRectangle, IBlockElement {
 
     public DrawableTextLine(TextLine line,
                             float availableWidth,
+                            float additionalIndent,
                             float topPadding,
                             float topMargin,
                             float bottomMargin) {
@@ -40,7 +41,7 @@ public class DrawableTextLine implements IRectangle, IBlockElement {
 
         this.chunks = getDrawableChunks(line);
         this.width = calculateWidth();
-        this.leftIndent = chooseLeftIndent(availableWidth, line, this.width);
+        this.leftIndent = chooseLeftIndent(line, availableWidth, additionalIndent, this.width);
     }
 
     @Override
@@ -67,8 +68,9 @@ public class DrawableTextLine implements IRectangle, IBlockElement {
 
     @Rule
     private float chooseLeftIndent(
-        float availableWidth,
         TextLine textLine,
+        float availableWidth,
+        float additionalLeftIndent,
         float drawableTextLineWidth
     ) {
         Box margin = textLine.getParagraphMargin();
@@ -76,11 +78,11 @@ public class DrawableTextLine implements IRectangle, IBlockElement {
         HorizontalTextAlignment horizontalTextAlignment = textLine.getHorizontalTextAlignment();
         switch (horizontalTextAlignment) {
             case LEFT:
-                return margin.getLeft();
+                return margin.getLeft() + additionalLeftIndent;
             case CENTER:
-                return margin.getLeft() + (remainingContentWidth - drawableTextLineWidth) / 2;
+                return margin.getLeft() + additionalLeftIndent + (remainingContentWidth - drawableTextLineWidth) / 2;
             case RIGHT:
-                return margin.getLeft() + remainingContentWidth - drawableTextLineWidth;
+                return margin.getLeft() + additionalLeftIndent + remainingContentWidth - drawableTextLineWidth;
         }
         throw new UnsupportedOperationException("Unsupported alignment: " + horizontalTextAlignment);
     }

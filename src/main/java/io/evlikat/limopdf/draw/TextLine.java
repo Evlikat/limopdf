@@ -19,6 +19,9 @@ public class TextLine implements IBlock {
     private final List<TextChunk> chunks = new ArrayList<>();
     @Setter
     @Getter
+    private float lineIndent = 0f;
+    @Setter
+    @Getter
     private boolean first = false;
     @Setter
     @Getter
