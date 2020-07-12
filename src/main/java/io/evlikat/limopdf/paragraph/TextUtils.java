@@ -1,26 +1,32 @@
 package io.evlikat.limopdf.paragraph;
 
+import io.evlikat.limopdf.paragraph.hyphenation.NoHyphenation;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TextUtils {
 
     public static List<String> splitByWords(String string) {
+        return splitByWords(string, NoHyphenation.INSTANCE);
+    }
+
+    public static List<String> splitByWords(String string, HyphenationRules hyphenationRules) {
         StringBuilder sb = new StringBuilder();
         List<String> result = new ArrayList<>();
-        boolean lastWhiteSpace = false;
+        boolean lastDelimiter = false;
         for (char c : string.toCharArray()) {
-            if (Character.isWhitespace(c)) {
+            if (hyphenationRules.isDelimiter(c)) {
                 sb.append(c);
-                lastWhiteSpace = true;
+                lastDelimiter = true;
             } else {
-                if (lastWhiteSpace) {
+                if (lastDelimiter) {
                     result.add(sb.toString());
                     sb = new StringBuilder();
 
                     sb.append(c);
 
-                    lastWhiteSpace = false;
+                    lastDelimiter = false;
                 } else {
                     sb.append(c);
                 }

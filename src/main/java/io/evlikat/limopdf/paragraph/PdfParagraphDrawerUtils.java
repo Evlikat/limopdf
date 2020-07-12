@@ -7,10 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toCollection;
@@ -20,7 +17,8 @@ class PdfParagraphDrawerUtils {
 
     static List<TextLine> wrapLines(List<PdfParagraphChunk> paragraphChunks,
                                     float availableWidth,
-                                    float firstLineIndent) {
+                                    float firstLineIndent,
+                                    HyphenationRules defaultHyphenationRules) {
 
         float remainingWidth = availableWidth - firstLineIndent;
 
@@ -52,7 +50,11 @@ class PdfParagraphDrawerUtils {
                 remainingWidth -= chunkWidth;
                 currentLine.addChunk(new TextChunk(chunkText, chunk.getProperties(), chunkWidth, requiredWidth));
             } else {
-                WrapResult wrapResult = wrapText(chunkText, remainingWidth, forceWrapAllowed, measurer::measureString);
+                WrapResult wrapResult = wrapText(chunkText,
+                    remainingWidth,
+                    forceWrapAllowed,
+                    Optional.ofNullable(chunk.getHyphenationRules()).orElse(defaultHyphenationRules),
+                    measurer::measureString);
                 if (isNotBlank(wrapResult.currentLine)) {
                     currentLine.addChunk(
                         new TextChunk(
@@ -85,9 +87,10 @@ class PdfParagraphDrawerUtils {
     private static WrapResult wrapText(String text,
                                        float availableWidth,
                                        boolean forceWrapAllowed,
+                                       HyphenationRules hyphenationRules,
                                        Function<String, Float> measurer) {
         // TODO: add spaces
-        List<String> textParts = TextUtils.splitByWords(text);
+        List<String> textParts = TextUtils.splitByWords(text, hyphenationRules);
         StringBuilder currentLineBuilder = new StringBuilder();
         StringBuilder nextLineBuilder = new StringBuilder();
         float remainingWidth = availableWidth;

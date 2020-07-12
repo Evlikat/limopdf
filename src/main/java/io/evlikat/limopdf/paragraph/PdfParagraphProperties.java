@@ -1,11 +1,10 @@
 package io.evlikat.limopdf.paragraph;
 
 import io.evlikat.limopdf.page.PageSpecification;
+import io.evlikat.limopdf.paragraph.hyphenation.DefaultHyphenation;
 import io.evlikat.limopdf.util.Box;
 import io.evlikat.limopdf.util.Rule;
 import lombok.*;
-
-import javax.annotation.Nullable;
 
 @Getter
 @Setter
@@ -30,9 +29,10 @@ public class PdfParagraphProperties {
     private boolean keepWithNext = false;
     @Builder.Default
     private int maxOrphanLinesAllowed = 2;
-    @Nullable
     @Builder.Default
     private PageSpecification nextPageSpecification = null;
+    @Builder.Default
+    private HyphenationRules hyphenationRules = DefaultHyphenation.INSTANCE;
 
     @Rule
     public float getLineSpacingInPixels() {

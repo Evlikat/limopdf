@@ -38,7 +38,8 @@ public class ParagraphIterator {
 
                 List<TextLine> textLines = PdfParagraphDrawerUtils.wrapLines(paragraph.getChunks(),
                     remainingContentWidth,
-                    paragraphProperties.getFirstLineIndent()
+                    paragraphProperties.getFirstLineIndent(),
+                    paragraphProperties.getHyphenationRules()
                 );
                 if (!textLines.isEmpty()) {
                     TextLine first = textLines.get(0);

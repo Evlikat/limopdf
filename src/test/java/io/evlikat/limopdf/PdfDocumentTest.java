@@ -18,6 +18,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static io.evlikat.limopdf.paragraph.HorizontalTextAlignment.*;
@@ -74,6 +75,13 @@ public class PdfDocumentTest {
     public void shouldAddSomeParagraphs() {
         doc.addParagraph(new PdfParagraph(loremIpsum()));
         doc.addParagraph(new PdfParagraph(loremIpsum().replaceAll("\\s+", "")));
+    }
+
+    @Test(timeout = 3000L)
+    public void shouldAddSomeParagraphsWithHyphens() {
+        Pattern pattern = Pattern.compile("([A-z])\\s+([A-z])");
+        String text = pattern.matcher(loremIpsum()).replaceAll("$1-$2");
+        doc.addParagraph(new PdfParagraph(text));
     }
 
     @Test(timeout = 3000L)
