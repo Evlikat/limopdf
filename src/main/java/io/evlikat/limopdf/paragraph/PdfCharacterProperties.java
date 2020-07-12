@@ -18,11 +18,15 @@ public class PdfCharacterProperties {
     @Builder.Default
     private float fontSize = 12f;
     @Builder.Default
+    private boolean isOverline = false;
+    @Builder.Default
     private boolean isUnderline = false;
     @Builder.Default
     private boolean isStrikethrough = false;
     @Builder.Default
     private Color color = Color.BLACK;
+    @Builder.Default
+    private float textRise = 0f;
 
     @SneakyThrows
     public float getHeightInPixels() {
@@ -49,5 +53,10 @@ public class PdfCharacterProperties {
     @Rule
     public float getStrikethroughOffset() {
         return fontSize / 4f;
+    }
+
+    @Rule
+    public float getOverlineOffset() {
+        return fontSize / 2f + fontSize / 6f;
     }
 }

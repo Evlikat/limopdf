@@ -49,32 +49,17 @@ public class DrawableArea {
 
             characterProperties.setUpContentStream(contentStream);
 
+            float xEffective = tx;
+            float yEffective = ty + characterProperties.getTextRise();
+
             contentStream.beginText();
-            contentStream.newLineAtOffset(tx, ty);
+            contentStream.newLineAtOffset(xEffective, yEffective);
             contentStream.showText(textChunk.getText());
             contentStream.endText();
 
             float chunkWidth = textChunk.getWidth();
 
-            if (characterProperties.isUnderline()) {
-                float underlineWidth = characterProperties.getTextDecorationLineWidth();
-                float underlineOffset = characterProperties.getUnderlineOffset();
-
-                contentStream.setLineWidth(underlineWidth);
-                contentStream.moveTo(tx, ty + underlineOffset);
-                contentStream.lineTo(tx + chunkWidth, ty + underlineOffset);
-                contentStream.stroke();
-            }
-
-            if (characterProperties.isStrikethrough()) {
-                float underlineWidth = characterProperties.getTextDecorationLineWidth();
-                float underlineOffset = characterProperties.getStrikethroughOffset();
-
-                contentStream.setLineWidth(underlineWidth);
-                contentStream.moveTo(tx, ty + underlineOffset);
-                contentStream.lineTo(tx + chunkWidth, ty + underlineOffset);
-                contentStream.stroke();
-            }
+            addTextDecoration(characterProperties, xEffective, yEffective, chunkWidth);
 
             tx += chunkWidth;
         }
@@ -89,6 +74,42 @@ public class DrawableArea {
 
     public boolean isBlank() {
         return position.isBlank();
+    }
+
+    private void addTextDecoration(PdfCharacterProperties characterProperties,
+                                   float xEffective,
+                                   float yEffective,
+                                   float chunkWidth) throws IOException {
+
+        if (characterProperties.isUnderline()) {
+            float underlineWidth = characterProperties.getTextDecorationLineWidth();
+            float underlineOffset = characterProperties.getUnderlineOffset();
+
+            contentStream.setLineWidth(underlineWidth);
+            contentStream.moveTo(xEffective, yEffective + underlineOffset);
+            contentStream.lineTo(xEffective + chunkWidth, yEffective + underlineOffset);
+            contentStream.stroke();
+        }
+
+        if (characterProperties.isStrikethrough()) {
+            float underlineWidth = characterProperties.getTextDecorationLineWidth();
+            float underlineOffset = characterProperties.getStrikethroughOffset();
+
+            contentStream.setLineWidth(underlineWidth);
+            contentStream.moveTo(xEffective, yEffective + underlineOffset);
+            contentStream.lineTo(xEffective + chunkWidth, yEffective + underlineOffset);
+            contentStream.stroke();
+        }
+
+        if (characterProperties.isOverline()) {
+            float underlineWidth = characterProperties.getTextDecorationLineWidth();
+            float overlineOffset = characterProperties.getOverlineOffset();
+
+            contentStream.setLineWidth(underlineWidth);
+            contentStream.moveTo(xEffective, yEffective + overlineOffset);
+            contentStream.lineTo(xEffective + chunkWidth, yEffective + overlineOffset);
+            contentStream.stroke();
+        }
     }
 
     private void drawDebugLines(DrawableTextLine line, float tx, float ty) throws IOException {

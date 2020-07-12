@@ -79,13 +79,13 @@ public class PdfDocumentTest {
     @Test(timeout = 3000L)
     public void shouldAddStyledParagraphs() {
         List<PdfParagraphChunk> chunks1 = EntryStream.of(splitByWords(loremIpsum(2)))
-            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, byIndex(index, BLACK)))
+            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, differentPropertiesByIndex(index, BLACK)))
             .collect(Collectors.toList());
 
         PdfParagraph paragraph1 = new PdfParagraph(chunks1);
 
         List<PdfParagraphChunk> chunks2 = EntryStream.of(splitByWords(loremIpsum(2)))
-            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, byIndex(index, RED)))
+            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, differentPropertiesByIndex(index, RED)))
             .collect(Collectors.toList());
         PdfParagraph paragraph2 = new PdfParagraph(chunks2);
 
@@ -186,6 +186,15 @@ public class PdfDocumentTest {
         doc.addParagraph(new PdfParagraph(loremIpsum(2)));
     }
 
+    @Test(timeout = 3000L)
+    public void shouldHandleTextRise() {
+        List<PdfParagraphChunk> chunks = EntryStream.of(splitByWords(loremIpsum(2)))
+            .mapKeyValue((index, word) -> new PdfParagraphChunk(word, differentTextRiseByIndex(index)))
+            .collect(Collectors.toList());
+        doc.setPageSpecification(PageSpecifications.A5);
+        doc.addParagraph(new PdfParagraph(chunks));
+    }
+
     private PdfParagraphProperties boxed(HorizontalTextAlignment horizontalTextAlignment, Box margin) {
         return builder()
             .horizontalTextAlignment(horizontalTextAlignment)
@@ -201,7 +210,7 @@ public class PdfDocumentTest {
             .build();
     }
 
-    private PdfCharacterProperties byIndex(int index, Color color) {
+    private PdfCharacterProperties differentPropertiesByIndex(int index, Color color) {
         return PdfCharacterProperties.builder()
             .fontProperties(PdfFontProperties.builder()
                 .isBold((index & 0x01) == 0x01)
@@ -210,6 +219,19 @@ public class PdfDocumentTest {
             .isUnderline((index & 0x04) == 0x04)
             .isStrikethrough((index & 0x08) == 0x08)
             .color(color)
+            .build();
+    }
+
+    private PdfCharacterProperties differentTextRiseByIndex(int index) {
+        // 0, 1, 2, -2, -1, 0, 1, 2, ...
+        int shift = (index + 2) % 5 - 2;
+        boolean isShifted = Math.abs(shift) == 1;
+        return PdfCharacterProperties.builder()
+            .textRise(isShifted ? (shift < 0 ? -2f : 6f) : 0f)
+            .fontSize(isShifted ? 6f : 12f)
+            .isUnderline(isShifted)
+            .isStrikethrough(isShifted)
+            .isOverline(isShifted)
             .build();
     }
 }
