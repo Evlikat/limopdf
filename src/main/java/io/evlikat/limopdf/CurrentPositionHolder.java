@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CurrentPositionHolder {
+public class CurrentPositionHolder implements CurrentPosition {
 
     private Position position;
     private float lastBottomMargin;
@@ -24,10 +24,12 @@ public class CurrentPositionHolder {
         this.blank = true;
     }
 
+    @Override
     public float getX() {
         return position.getX();
     }
 
+    @Override
     public float getY() {
         return position.getY();
     }

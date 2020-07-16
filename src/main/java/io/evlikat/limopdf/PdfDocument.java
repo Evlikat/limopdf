@@ -1,7 +1,6 @@
 package io.evlikat.limopdf;
 
 import io.evlikat.limopdf.page.PageSpecification;
-import io.evlikat.limopdf.paragraph.PdfParagraph;
 import io.evlikat.limopdf.structure.Drawable;
 import io.evlikat.limopdf.structure.DrawableGroups;
 import lombok.SneakyThrows;
@@ -34,8 +33,8 @@ public class PdfDocument {
         this.guard.setPageSpecification(pageSpecification);
     }
 
-    public void addParagraph(PdfParagraph paragraph) {
-        elements.add(paragraph);
+    public void add(Drawable drawable) {
+        elements.add(drawable);
     }
 
     public void save(String fileName) {
